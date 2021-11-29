@@ -21,6 +21,10 @@ vim.opt.shiftround=true
 vim.opt.list=true
 vim.opt.listchars="trail:•,precedes:«,tab:▸ ,extends:»"
 
+vim.opt.completeopt="noinsert,menuone,noselect"
+vim.opt.wildmenu=true
+vim.opt.wildmode="list:longest,full"
+vim.opt.wildignore="*.o,*~,*.pyc,.git"
 ----------------
 -- plugin config
 -- builtins
@@ -31,12 +35,32 @@ vim.opt.listchars="trail:•,precedes:«,tab:▸ ,extends:»"
 
 -- globals
 -- general settings
+
 lvim.log.level = "warn"
 lvim.format_on_save = true
 lvim.colorscheme = "solarized"
-
 lvim.leader = "space"
 lvim.builtin.lualine.style = "default"
+lvim.builtin.lualine.sections.lualine_y = {
+    'diagnostics',
+    source = {'nvim_lsp', 'coc'},
+    -- sections = {'error', 'warn', 'info', 'hint'},
+    diagnostics_color = {
+        -- Same values like general color option can be used here.
+        error = 'DiagnosticError', -- changes diagnostic's error color
+        warn  = 'DiagnosticWarn',  -- changes diagnostic's warn color
+        info  = 'DiagnosticInfo',  -- Changes diagnostic's info color
+        hint  = 'DiagnosticHint',  -- Changes diagnostic's hint color
+   },
+   symbols = {error = 'E', warn = 'W', info = 'I', hint = 'H'},
+   -- colored = true, -- displays diagnostics status in color if set to true
+   -- update_in_insert = false, -- Update diagnostics in insert mode
+   -- always_visible = false -- Show diagnostics even if count is 0, boolean or function returning boolean
+}
+lvim.builtin.lualine.sections.lualine_z = {
+    '%l/%L:%c'
+}
+-- lvim.builtin.lualine.style = "lvim"
 
 -- add your own keymapping
 -- lvim.keys.term_mode["jk"] = "<C-\\><C-n>"
@@ -112,8 +136,8 @@ lvim.builtin.treesitter.highlight.enabled = true
 -- vim.list_extend(lvim.lsp.override, { "pyright" })
 
 -- ---@usage setup a server -- see: https://www.lunarvim.org/languages/#overriding-the-default-configuration
--- local opts = {} -- check the lspconfig documentation for a list of all possible options
--- require("lvim.lsp.manager").setup("pylsp", opts)
+local opts = {} -- check the lspconfig documentation for a list of all possible options
+require("lvim.lsp.manager").setup("pylsp", opts)
 
 -- you can set a custom on_attach function that will be used for all the language servers
 -- See <https://github.com/neovim/nvim-lspconfig#keybindings-and-completion>
@@ -174,7 +198,11 @@ lvim.builtin.treesitter.highlight.enabled = true
 
 -- Additional Plugins
 lvim.plugins = {
-      {"ishan9299/nvim-solarized-lua"},
+    {
+        "tpope/vim-surround",
+        keys = {"c", "d", "y"}
+    },
+    {"ishan9299/nvim-solarized-lua"},
 --     {"folke/tokyonight.nvim"},
     {
       "folke/trouble.nvim",
