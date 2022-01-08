@@ -11,6 +11,9 @@ an executable
 vim.g.loaded_python_provider = true
 vim.g.python3_host_prog = vim.env['HOME'] .. '/venv/lvim/bin/python'
 
+vim.opt.timeout = true
+vim.opt.timeoutlen = 500
+
 vim.opt.scrolloff=10
 vim.opt.expandtab=true
 vim.opt.shiftwidth=4
@@ -35,30 +38,30 @@ vim.opt.wildignore="*.o,*~,*.pyc,.git"
 
 -- globals
 -- general settings
-
 lvim.log.level = "warn"
-lvim.format_on_save = true
+lvim.format_on_save = false
 lvim.colorscheme = "solarized"
 lvim.leader = "space"
 lvim.builtin.lualine.style = "default"
-lvim.builtin.lualine.sections.lualine_y = {
-    'diagnostics',
-    source = {'nvim_lsp', 'coc'},
-    -- sections = {'error', 'warn', 'info', 'hint'},
-    diagnostics_color = {
-        -- Same values like general color option can be used here.
-        error = 'DiagnosticError', -- changes diagnostic's error color
-        warn  = 'DiagnosticWarn',  -- changes diagnostic's warn color
-        info  = 'DiagnosticInfo',  -- Changes diagnostic's info color
-        hint  = 'DiagnosticHint',  -- Changes diagnostic's hint color
-   },
-   symbols = {error = 'E', warn = 'W', info = 'I', hint = 'H'},
-   -- colored = true, -- displays diagnostics status in color if set to true
-   -- update_in_insert = false, -- Update diagnostics in insert mode
-   -- always_visible = false -- Show diagnostics even if count is 0, boolean or function returning boolean
-}
-lvim.builtin.lualine.sections.lualine_z = {
-    '%l/%L:%c'
+lvim.builtin.lualine.sections = {
+    lualine_c = {'%f%m'},
+    lualine_z = {'%l/%L:%c'},
+    lualine_y = {
+        'diagnostics',
+        source = {'nvim_lsp'},
+        -- sections = {'error', 'warn', 'info', 'hint'},
+        diagnostics_color = {
+            -- Same values like general color option can be used here.
+            error = 'DiagnosticError', -- changes diagnostic's error color
+            warn  = 'DiagnosticWarn',  -- changes diagnostic's warn color
+            info  = 'DiagnosticInfo',  -- Changes diagnostic's info color
+            hint  = 'DiagnosticHint',  -- Changes diagnostic's hint color
+        },
+        symbols = {error = 'E', warn = 'W', info = 'I', hint = 'H'},
+        -- colored = true, -- displays diagnostics status in color if set to true
+        -- update_in_insert = false, -- Update diagnostics in insert mode
+        -- always_visible = false -- Show diagnostics even if count is 0, boolean or function returning boolean
+    }
 }
 -- lvim.builtin.lualine.style = "lvim"
 
@@ -90,7 +93,9 @@ lvim.builtin.lualine.sections.lualine_z = {
 -- }
 
 -- Use which-key to add extra bindings with the leader-key prefix
--- lvim.builtin.which_key.mappings["P"] = { "<cmd>Telescope projects<CR>", "Projects" }
+lvim.builtin.which_key.mappings["P"] = {
+    "<cmd>Telescope projects<CR>", "Projects"
+}
 lvim.builtin.which_key.mappings["t"] = {
   name = "+Trouble",
   r = { "<cmd>Trouble lsp_references<cr>", "References" },
@@ -115,7 +120,6 @@ lvim.builtin.treesitter.ensure_installed = {
   "javascript",
   "json",
   "lua",
-  "python",
   "typescript",
   "css",
   "rust",
@@ -128,6 +132,7 @@ lvim.builtin.treesitter.highlight.enabled = true
 
 -- generic LSP settings
 
+vim.list_extend(lvim.lsp.override, {"pyright"})
 -- ---@usage disable automatic installation of servers
 -- lvim.lsp.automatic_servers_installation = false
 
@@ -136,6 +141,20 @@ lvim.builtin.treesitter.highlight.enabled = true
 -- vim.list_extend(lvim.lsp.override, { "pyright" })
 
 -- ---@usage setup a server -- see: https://www.lunarvim.org/languages/#overriding-the-default-configuration
+
+-- local lsp=require('lspconfig')
+-- lsp.pylsp.setup{
+--     settings = {
+--         plugins = {
+--             pylint = {
+--                 enabled = true,
+--                 executable = 'pylint',
+--                 args={'--rcfile', '~/.pylintrc'}
+--             }
+--         }
+--     }
+-- }
+
 local opts = {} -- check the lspconfig documentation for a list of all possible options
 require("lvim.lsp.manager").setup("pylsp", opts)
 
@@ -182,6 +201,12 @@ require("lvim.lsp.manager").setup("pylsp", opts)
 -- -- set additional linters
 -- local linters = require "lvim.lsp.null-ls.linters"
 -- linters.setup {
+--     {
+--         exe = "mypy",
+--         filetypes = { "python" },
+--         args = { "--config-file", "./develop/.mypy.ini"}
+--     }
+-- }
 --   { exe = "flake8", filetypes = { "python" } },
 --   {
 --     exe = "shellcheck",
@@ -207,6 +232,14 @@ lvim.plugins = {
     {
       "folke/trouble.nvim",
       cmd = "TroubleToggle",
+    },
+    {
+        "f-person/git-blame.nvim",
+        event = "BufRead",
+        config = function()
+            vim.cmd "highlight default link gitblame SpecialComment"
+            vim.g.gitblame_enabled = 0
+        end,
     },
 }
 
